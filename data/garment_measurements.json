@@ -1,0 +1,12 @@
+{
+  "shirt_m": {
+    "shoulder_width": 44,
+    "chest_circumference": 96,
+    "waist_circumference": 84
+  },
+  "shirt_s": {
+    "shoulder_width": 40,
+    "chest_circumference": 88,
+    "waist_circumference": 76
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Garment Fit Checker</title>
+    <script>
+        function updateSettings() {
+            const garment = document.getElementById('garment').value;
+            const mode = document.getElementById('mode').value;
+
+            fetch('/update_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ garment: garment, mode: mode })
+            }).then(response => {
+                console.log("Settings updated.");
+            });
+        }
+
+        setInterval(() => {
+            fetch(window.location.href)
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    document.getElementById("measurement-block").innerHTML = doc.getElementById("measurement-block").innerHTML;
+                    document.getElementById("fit-block").innerHTML = doc.getElementById("fit-block").innerHTML;
+                });
+        }, 1500);
+    </script>
+</head>
+<body>
+    <h2>👚 Real-Time Garment Fit Checker</h2>
+
+    <label><strong>Select Garment:</strong></label>
+    <select id="garment" onchange="updateSettings()">
+        {% for garment in garments %}
+            <option value="{{ garment }}" {% if garment == selected %}selected{% endif %}>{{ garment }}</option>
+        {% endfor %}
+    </select>
+
+    <label><strong>Select Mode:</strong></label>
+    <select id="mode" onchange="updateSettings()">
+        <option value="manual" {% if mode == 'manual' %}selected{% endif %}>Manual</option>
+        <option value="auto" {% if mode == 'auto' %}selected{% endif %}>Automatic (Live)</option>
+    </select>
+
+    <h3>📸 Live Camera Feed</h3>
+    <img src="{{ url_for('video_feed') }}" width="640" />
+
+    <div id="measurement-block">
+        <h3>📏 User Measurements</h3>
+        {% if user_meas %}
+            <ul>
+            {% for k, v in user_meas.items() %}
+                <li><strong>{{ k.replace('_', ' ').capitalize() }}:</strong> {{ v }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>Waiting for measurements...</p>
+        {% endif %}
+    </div>
+
+    <div id="fit-block">
+        <h3>🧵 Fit Result</h3>
+        {% if fit %}
+            <ul>
+            {% for k, v in fit.items() %}
+                <li><strong>{{ k.replace('_', ' ').capitalize() }}:</strong> {{ v }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>Waiting for fit evaluation...</p>
+        {% endif %}
+    </div>
+</body>
+</html>
